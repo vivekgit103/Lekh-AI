@@ -1,53 +1,74 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Sparkles, Shield, Cpu, Activity } from 'lucide-react';
 
 export default function Footer() {
   return (
-    <footer className="border-t border-[#D5CEC1] bg-[#F1EBDD] text-[#101B2D] py-12 mt-auto">
-      <div className="max-w-[1440px] mx-auto px-4 sm:px-8 lg:px-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 pb-10 border-b border-[#D5CEC1]">
+    <footer className="border-t border-white/05 bg-[#070A0F]/90 backdrop-blur-md text-[#9BA6B5] py-12 mt-auto">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 pb-10 border-b border-white/05">
           {/* Brand Column */}
-          <div className="md:col-span-2 space-y-3">
-            <Link to="/" className="font-serif text-2xl font-bold tracking-tight text-[#101B2D]">
-              DOCUSAATHI.
+          <div className="md:col-span-2 space-y-4">
+            <Link to="/" className="flex items-center gap-2.5">
+              <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-[#5B8CFF] to-[#7C5CFF] p-[1px]">
+                <div className="w-full h-full bg-[#070A0F] rounded-[7px] flex items-center justify-center">
+                  <Sparkles className="w-3.5 h-3.5 text-[#5B8CFF]" />
+                </div>
+              </div>
+              <span className="font-display text-lg font-bold tracking-tight text-[#F5F7FA]">
+                Docu<span className="text-[#5B8CFF]">Saathi</span>
+              </span>
             </Link>
-            <p className="font-mono text-xs text-[#70716D] max-w-md leading-relaxed">
-              Intelligent document understanding and decision engine. Crafted for Indian taxpayers, freelancers, and small businesses facing complex paperwork.
+            <p className="text-xs text-[#9BA6B5] max-w-sm leading-relaxed">
+              Intelligent document understanding and decision engine. Converts complex Indian utility bills, invoices, tax notices, and bank letters into clear, validated action plans.
             </p>
+            {/* System Status Pill */}
+            <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-[#25D9B5]/10 border border-[#25D9B5]/20 text-[11px] font-mono text-[#25D9B5]">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#25D9B5] animate-pulse" />
+              <span>PIPELINE ENGINE: ONLINE</span>
+            </div>
           </div>
 
-          {/* Architecture info */}
-          <div className="space-y-2">
-            <span className="font-mono text-[11px] text-[#3158A8] uppercase tracking-widest block">
-              01 — ARCHITECTURE
+          {/* Architecture column */}
+          <div className="space-y-3">
+            <span className="text-[11px] font-mono uppercase tracking-wider text-[#5B8CFF] font-semibold block">
+              ARCHITECTURE
             </span>
-            <ul className="font-mono text-xs text-[#70716D] space-y-1.5">
-              <li>Google Gemini Multimodal AI</li>
-              <li>Deterministic Rule Audit</li>
-              <li>Supabase Row-Level Security</li>
-              <li>Zero In-Memory Leak Ingestion</li>
+            <ul className="text-xs text-[#9BA6B5] space-y-2">
+              <li className="flex items-center gap-2">
+                <Cpu className="w-3.5 h-3.5 text-[#7C5CFF]" />
+                <span>Gemini Multimodal AI</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <Shield className="w-3.5 h-3.5 text-[#25D9B5]" />
+                <span>Deterministic Math Audit</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <Activity className="w-3.5 h-3.5 text-[#5B8CFF]" />
+                <span>Supabase Row-Level Security</span>
+              </li>
             </ul>
           </div>
 
-          {/* Navigation Links */}
-          <div className="space-y-2">
-            <span className="font-mono text-[11px] text-[#3158A8] uppercase tracking-widest block">
-              02 — NAVIGATION
+          {/* Navigation Column */}
+          <div className="space-y-3">
+            <span className="text-[11px] font-mono uppercase tracking-wider text-[#5B8CFF] font-semibold block">
+              QUICK ACCESS
             </span>
-            <ul className="font-mono text-xs text-[#70716D] space-y-1.5">
+            <ul className="text-xs text-[#9BA6B5] space-y-2">
               <li>
-                <Link to="/dashboard" className="hover:text-[#101B2D] transition-colors">
-                  DASHBOARD
+                <Link to="/dashboard" className="hover:text-[#F5F7FA] transition-colors">
+                  Overview Dashboard
                 </Link>
               </li>
               <li>
-                <Link to="/upload" className="hover:text-[#101B2D] transition-colors">
-                  UPLOAD DOCUMENT
+                <Link to="/upload" className="hover:text-[#F5F7FA] transition-colors">
+                  Upload & Analyze
                 </Link>
               </li>
               <li>
-                <Link to="/deadlines" className="hover:text-[#101B2D] transition-colors">
-                  DEADLINES
+                <Link to="/deadlines" className="hover:text-[#F5F7FA] transition-colors">
+                  Compliance Deadlines
                 </Link>
               </li>
             </ul>
@@ -55,12 +76,12 @@ export default function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="pt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 font-mono text-[11px] text-[#70716D]">
+        <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] font-mono text-[#657182]">
           <div>
-            © {new Date().getFullYear()} DOCUSAATHI. ALL RIGHTS RESERVED.
+            © {new Date().getFullYear()} DOCUSAATHI AI. ALL RIGHTS RESERVED.
           </div>
-          <div>
-            BUILT FOR INTELLIGENT DOCUMENT PROCESSING HACKATHON
+          <div className="text-right">
+            INTELLIGENT DOCUMENT PROCESSING HACKATHON
           </div>
         </div>
       </div>

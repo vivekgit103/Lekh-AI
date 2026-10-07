@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { api } from '../services/api';
 import RiskBadge from '../components/RiskBadge';
 import DeadlineCard from '../components/DeadlineCard';
@@ -9,14 +10,27 @@ import ActionList from '../components/ActionList';
 import DocumentHeader from '../components/DocumentHeader';
 import LoadingSpinner from '../components/LoadingSpinner';
 import DocumentChatPage from './DocumentChatPage';
+import {
+  Sparkles,
+  AlertTriangle,
+  Calendar,
+  ShieldAlert,
+  MessageSquare,
+  FileText,
+  Clock,
+  ArrowRight
+} from 'lucide-react';
 
 export default function DocumentResultPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [document, setDocument] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [activeTab, setActiveTab] = useState('analysis'); // 'analysis' | 'chat'
+  const [activeTab, setActiveTab] = useState(
+    location.pathname.endsWith('/chat') ? 'chat' : 'analysis'
+  );
 
   useEffect(() => {
     async function fetchDoc() {
@@ -49,21 +63,21 @@ export default function DocumentResultPage() {
   };
 
   if (loading) {
-    return <LoadingSpinner text="ASSEMBLING EDITORIAL AUDIT REPORT..." />;
+    return <LoadingSpinner text="ASSEMBLING MULTIMODAL AUDIT REPORT..." />;
   }
 
   if (error || !document) {
     return (
-      <div className="max-w-xl mx-auto my-12 text-center p-8 border border-[#D5CEC1] bg-[#FAF8F2] space-y-4">
-        <span className="font-mono text-xs uppercase tracking-widest text-[#8B2626] font-bold block">
-          [ DOCUMENT NOT FOUND ]
+      <div className="max-w-xl mx-auto my-12 text-center p-8 rounded-2xl border border-[#FF5C6C]/30 bg-[#111722] space-y-4 shadow-xl">
+        <span className="font-mono text-xs uppercase tracking-widest text-[#FF5C6C] font-bold block">
+          DOCUMENT NOT FOUND
         </span>
-        <p className="font-mono text-xs text-[#101B2D]">{error || 'The requested document is unavailable.'}</p>
+        <p className="font-sans text-sm text-[#9BA6B5]">{error || 'The requested document is unavailable.'}</p>
         <Link
           to="/dashboard"
-          className="inline-block bg-[#101B2D] text-[#F1EBDD] px-6 py-2.5 rounded-sm font-mono text-xs uppercase tracking-widest"
+          className="inline-block bg-white/10 hover:bg-white/20 text-[#F5F7FA] px-6 py-2.5 rounded-xl font-mono text-xs uppercase tracking-wider transition-colors"
         >
-          [ BACK TO DASHBOARD ]
+          BACK TO DASHBOARD
         </Link>
       </div>
     );
@@ -72,10 +86,16 @@ export default function DocumentResultPage() {
   const deadlines = document.deadlines || [];
   const risks = document.risks || [];
   const validationData = document.validation_results || document.validationResults;
+  const highestRisk = document.overallRisk ||
+    (risks.find((r) => r.level === 'HIGH')
+      ? 'HIGH'
+      : risks.find((r) => r.level === 'MEDIUM')
+      ? 'MEDIUM'
+      : 'LOW');
 
   return (
-    <div className="space-y-16">
-      {/* 05 — DOCUMENT: Top Header Block */}
+    <div className="space-y-12 pb-20">
+      {/* Top Document Header Card with Audit / Chat Tabs */}
       <DocumentHeader
         document={document}
         onDelete={handleDelete}
@@ -87,30 +107,46 @@ export default function DocumentResultPage() {
       {activeTab === 'chat' ? (
         <DocumentChatPage document={document} />
       ) : (
-        <div className="space-y-16">
-          {/* 06 — SUMMARY */}
-          <section className="space-y-4 border-b border-[#D5CEC1] pb-10">
-            <span className="font-mono text-xs uppercase tracking-widest text-[#3158A8] block">
-              06 — SUMMARY
-            </span>
-            <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#101B2D]">
-              What this document is saying.
-            </h2>
-            <div className="max-w-4xl pt-2">
-              <p className="font-serif text-lg sm:text-xl text-[#101B2D] leading-relaxed">
-                {document.summary || 'Summary not available.'}
-              </p>
+        <div className="space-y-12">
+          {/* AI SUMMARY: "WHAT THIS MEANS" */}
+          <section className="relative rounded-3xl border border-[#5B8CFF]/30 bg-gradient-to-r from-[#111722] via-[#151C29] to-[#111722] p-6 sm:p-10 shadow-2xl overflow-hidden">
+            <div className="absolute top-0 right-0 w-80 h-80 bg-[#5B8CFF]/10 rounded-full blur-3xl pointer-events-none" />
+
+            <div className="relative z-10 space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-[#5B8CFF]/20 flex items-center justify-center text-[#5B8CFF]">
+                    <Sparkles className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h2 className="font-display text-lg sm:text-xl font-bold tracking-tight text-[#F5F7FA]">
+                      WHAT THIS MEANS
+                    </h2>
+                    <span className="font-mono text-[10px] uppercase text-[#9BA6B5] tracking-wider block">
+                      Generated from your document via Gemini Reasoning
+                    </span>
+                  </div>
+                </div>
+
+                <span className="text-[11px] font-mono px-2.5 py-0.5 rounded-full bg-[#5B8CFF]/10 text-[#5B8CFF] border border-[#5B8CFF]/20">
+                  AI UNDERSTANDING
+                </span>
+              </div>
+
+              <div className="pt-2">
+                <p className="font-sans text-base sm:text-lg text-[#F5F7FA] leading-relaxed font-normal">
+                  {document.summary || 'Summary not available.'}
+                </p>
+              </div>
             </div>
           </section>
 
-          {/* 07 — INFORMATION (Ruled Data Table) */}
-          <section className="space-y-6 border-b border-[#D5CEC1] pb-10">
-            <div>
-              <span className="font-mono text-xs uppercase tracking-widest text-[#3158A8] block mb-1">
-                07 — INFORMATION
-              </span>
-              <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#101B2D]">
-                Structured parameters & figures.
+          {/* KEY INFORMATION: Structured Parameters & Line items */}
+          <section className="space-y-4">
+            <div className="flex items-center gap-2 border-b border-white/05 pb-3">
+              <span className="w-2 h-2 rounded-full bg-[#7C5CFF]" />
+              <h2 className="font-display text-xl font-bold text-[#F5F7FA]">
+                Key Information & Line Items
               </h2>
             </div>
 
@@ -120,85 +156,87 @@ export default function DocumentResultPage() {
             />
           </section>
 
-          {/* 08 — VALIDATION */}
-          <section className="border-b border-[#D5CEC1] pb-10">
+          {/* VALIDATION: "Verified by DocuSaathi" */}
+          <section>
             <ValidationCard validation={validationData} />
           </section>
 
-          {/* 09 — RISKS (Typography + Strong Left Border) */}
-          <section className="space-y-6 border-b border-[#D5CEC1] pb-10">
-            <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2">
-              <div>
-                <span className="font-mono text-xs uppercase tracking-widest text-[#3158A8] block mb-1">
-                  09 — RISKS
-                </span>
-                <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#101B2D]">
-                  Legal exposure & non-compliance flags.
+          {/* RISK ANALYSIS: Intelligent Risk Panel */}
+          <section className="space-y-4">
+            <div className="flex items-center justify-between border-b border-white/05 pb-3">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-[#FF5C6C]" />
+                <h2 className="font-display text-xl font-bold text-[#F5F7FA]">
+                  Statutory Risk & Liability Analysis
                 </h2>
               </div>
-              <span className="font-mono text-xs text-[#70716D] uppercase">
+              <span className="text-xs font-mono text-[#9BA6B5]">
                 {risks.length} EXPOSURE ITEM{risks.length !== 1 ? 'S' : ''}
               </span>
             </div>
 
             {risks.length === 0 ? (
-              <div className="border border-[#D5CEC1] bg-[#FAF8F2] p-8 font-mono text-xs text-[#70716D] italic">
-                No high or medium statutory risks detected for this document.
+              <div className="glass-panel p-8 text-center rounded-2xl border border-white/05 font-mono text-xs text-[#9BA6B5]">
+                No critical or medium statutory compliance hazards detected.
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {risks.map((risk, index) => {
                   const isHigh = risk.level === 'HIGH';
                   const isMed = risk.level === 'MEDIUM';
-                  const borderCol = isHigh ? 'border-l-[#8B2626]' : isMed ? 'border-l-[#9A6B2F]' : 'border-l-[#2D6A4F]';
 
                   return (
-                    <div
+                    <motion.div
                       key={index}
-                      className={`border border-[#D5CEC1] border-l-4 ${borderCol} bg-[#FAF8F2] p-6 space-y-2`}
+                      whileHover={{ y: -2 }}
+                      className={`rounded-2xl border p-6 space-y-3 transition-all ${
+                        isHigh
+                          ? 'bg-[#111722] border-[#FF5C6C]/30 hover:border-[#FF5C6C]/60 shadow-lg shadow-[#FF5C6C]/05'
+                          : isMed
+                          ? 'bg-[#111722] border-[#FFB84D]/30 hover:border-[#FFB84D]/60'
+                          : 'bg-[#111722] border-[#25D9B5]/30'
+                      }`}
                     >
-                      <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div className="flex items-center justify-between gap-2">
                         <RiskBadge level={risk.level} size="sm" />
-                        <span className="font-mono text-[10px] text-[#70716D] uppercase">
-                          STATUTORY AUDIT NOTE
+                        <span className="font-mono text-[10px] text-[#9BA6B5] uppercase">
+                          WHY THIS MATTERS
                         </span>
                       </div>
 
-                      <h3 className="font-serif text-base sm:text-lg font-bold text-[#101B2D]">
+                      <h3 className="font-sans font-semibold text-base text-[#F5F7FA]">
                         {risk.reason}
                       </h3>
 
                       {risk.explanation && (
-                        <p className="font-mono text-xs text-[#70716D] leading-relaxed">
+                        <p className="font-sans text-xs text-[#9BA6B5] leading-relaxed">
                           {risk.explanation}
                         </p>
                       )}
-                    </div>
+                    </motion.div>
                   );
                 })}
               </div>
             )}
           </section>
 
-          {/* 10 — DEADLINES (Large Editorial Date Display) */}
-          <section className="space-y-6 border-b border-[#D5CEC1] pb-10">
-            <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2">
-              <div>
-                <span className="font-mono text-xs uppercase tracking-widest text-[#3158A8] block mb-1">
-                  10 — DEADLINES
-                </span>
-                <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#101B2D]">
-                  Statutory deadlines & cutoffs.
+          {/* DEADLINES: Striking Countdown Cards */}
+          <section className="space-y-4">
+            <div className="flex items-center justify-between border-b border-white/05 pb-3">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-[#5B8CFF]" />
+                <h2 className="font-display text-xl font-bold text-[#F5F7FA]">
+                  Statutory Deadlines & Cutoffs
                 </h2>
               </div>
-              <span className="font-mono text-xs text-[#70716D] uppercase">
-                {deadlines.length} TRACKED DATE{deadlines.length !== 1 ? 'S' : ''}
+              <span className="text-xs font-mono text-[#9BA6B5]">
+                {deadlines.length} TRACKED
               </span>
             </div>
 
             {deadlines.length === 0 ? (
-              <div className="border border-[#D5CEC1] bg-[#FAF8F2] p-8 font-mono text-xs text-[#70716D] italic">
-                No time-sensitive deadlines extracted.
+              <div className="glass-panel p-8 text-center rounded-2xl border border-white/05 font-mono text-xs text-[#9BA6B5]">
+                No time-sensitive deadlines extracted from this document.
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -209,48 +247,48 @@ export default function DocumentResultPage() {
             )}
           </section>
 
-          {/* 11 — ACTION PLAN (Prominent Numbered Steps) */}
-          <section className="border-b border-[#D5CEC1] pb-10">
+          {/* ACTION PLAN: "Here's what to do next." */}
+          <section>
             <ActionList actions={document.actions} />
           </section>
 
-          {/* 12 — EXPLANATION (Comfortable reading width with highlighted values) */}
-          <section className="space-y-6 border-b border-[#D5CEC1] pb-10">
-            <div>
-              <span className="font-mono text-xs uppercase tracking-widest text-[#3158A8] block mb-1">
-                12 — EXPLANATION
-              </span>
-              <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#101B2D]">
-                Detailed procedural breakdown.
-              </h2>
-            </div>
-
-            <div className="max-w-3xl border border-[#D5CEC1] bg-[#FAF8F2] p-6 sm:p-10">
-              <div className="font-serif text-base sm:text-lg text-[#101B2D] leading-relaxed whitespace-pre-line space-y-4">
-                {document.explanation || 'No detailed legal explanation generated.'}
+          {/* EXPLANATION: Procedural Breakdown */}
+          {document.explanation && (
+            <section className="space-y-4">
+              <div className="flex items-center gap-2 border-b border-white/05 pb-3">
+                <span className="w-2 h-2 rounded-full bg-[#7C5CFF]" />
+                <h2 className="font-display text-xl font-bold text-[#F5F7FA]">
+                  Comprehensive Procedural Breakdown
+                </h2>
               </div>
-            </div>
-          </section>
 
-          {/* Jump to Chat Callout */}
-          <div className="border border-[#D5CEC1] bg-[#101B2D] text-[#F1EBDD] p-8 sm:p-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+              <div className="glass-panel p-6 sm:p-8 rounded-2xl border border-white/05 font-sans text-sm text-[#F5F7FA] leading-relaxed whitespace-pre-line space-y-4">
+                {document.explanation}
+              </div>
+            </section>
+          )}
+
+          {/* Interactive Q&A Callout */}
+          <div className="glass-panel-elevated rounded-3xl border border-[#5B8CFF]/30 p-8 sm:p-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6 shadow-2xl">
             <div className="space-y-2">
-              <span className="font-mono text-[10px] text-[#3158A8] uppercase tracking-widest block">
-                13 — INTERACTIVE Q&A
-              </span>
-              <h3 className="font-serif text-2xl sm:text-3xl font-bold">
-                Have specific questions about this document?
+              <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-[#5B8CFF]/10 text-[10px] font-mono text-[#5B8CFF] uppercase">
+                <Sparkles className="w-3 h-3" />
+                <span>MULTIMODAL CONTEXT ACTIVE</span>
+              </div>
+              <h3 className="font-display text-2xl font-bold text-[#F5F7FA]">
+                Have questions about this document?
               </h3>
-              <p className="font-mono text-xs text-[#D5CEC1] max-w-xl">
-                Chat with the document context grounded on amounts, deadlines, and procedural steps.
+              <p className="font-sans text-xs sm:text-sm text-[#9BA6B5] max-w-xl">
+                Ask our AI assistant about tax provisions, due amounts, appeal procedures, or clarification on specific clauses.
               </p>
             </div>
 
             <button
               onClick={() => setActiveTab('chat')}
-              className="bg-[#F1EBDD] text-[#101B2D] hover:bg-[#E8E0D2] px-6 py-3 rounded-sm font-mono text-xs uppercase tracking-widest shrink-0 transition-colors"
+              className="bg-gradient-to-r from-[#5B8CFF] to-[#7C5CFF] text-[#F5F7FA] px-6 py-3.5 rounded-xl font-sans text-xs uppercase font-semibold tracking-wider shadow-glow-blue/40 hover:shadow-glow-blue/60 transition-all shrink-0 flex items-center justify-center gap-2"
             >
-              [ ASK THE DOCUMENT ]
+              <span>ASK DOCUSAATHI</span>
+              <ArrowRight className="w-4 h-4" />
             </button>
           </div>
         </div>
@@ -258,4 +296,3 @@ export default function DocumentResultPage() {
     </div>
   );
 }
-

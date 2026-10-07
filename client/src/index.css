@@ -3,42 +3,113 @@
 @tailwind utilities;
 
 :root {
-  --paper: #F1EBDD;
-  --paper-dark: #E8E0D2;
-  --navy: #101B2D;
-  --blue: #3158A8;
-  --muted: #70716D;
-  --line: #D5CEC1;
-  --white: #FAF8F2;
+  --bg-main: #070A0F;
+  --bg-secondary: #0D1117;
+  --bg-card: #111722;
+  --bg-elevated: #151C29;
+  --text-primary: #F5F7FA;
+  --text-secondary: #9BA6B5;
+  --accent-blue: #5B8CFF;
+  --accent-violet: #7C5CFF;
+  --accent-teal: #25D9B5;
+  --danger: #FF5C6C;
+  --warning: #FFB84D;
 }
 
 @layer base {
   body {
-    background-color: var(--paper);
-    color: var(--navy);
-    font-family: 'IBM Plex Mono', Menlo, monospace;
-    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    background-color: #070A0F;
+    color: #F5F7FA;
+    font-family: 'Plus Jakarta Sans', Inter, -apple-system, sans-serif;
     -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
     min-height: 100vh;
   }
 
-  h1, h2, h3, h4, .font-serif {
-    font-family: 'Playfair Display', Georgia, serif;
+  h1, h2, h3, h4, .font-display {
+    font-family: 'Space Grotesk', 'Plus Jakarta Sans', sans-serif;
+    letter-spacing: -0.02em;
   }
 }
 
-/* Custom subtle scrollbar matching paper and line palette */
+/* Glassmorphism utility classes */
+.glass-panel {
+  background: rgba(17, 23, 34, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-panel-elevated {
+  background: rgba(21, 28, 41, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.glass-nav {
+  background: rgba(7, 10, 15, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Electric gradients */
+.gradient-text-electric {
+  background: linear-gradient(135deg, #5B8CFF 0%, #7C5CFF 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.gradient-text-teal {
+  background: linear-gradient(135deg, #25D9B5 0%, #5B8CFF 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.btn-electric {
+  background: linear-gradient(135deg, #5B8CFF 0%, #7C5CFF 100%);
+  color: #FFFFFF;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 20px -2px rgba(91, 140, 255, 0.35);
+}
+
+.btn-electric:hover {
+  transform: translateY(-1px) scale(1.01);
+  box-shadow: 0 8px 30px -2px rgba(124, 92, 255, 0.5);
+}
+
+.btn-electric:active {
+  transform: scale(0.98);
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #F5F7FA;
+  backdrop-filter: blur(10px);
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(91, 140, 255, 0.4);
+  transform: translateY(-1px);
+}
+
+/* Dark subtle scrollbar */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--paper);
+  background: #070A0F;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--line);
+  background: #1C2433;
+  border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--muted);
+  background: #2D3748;
 }
 

@@ -1,12 +1,22 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '../services/api';
+import {
+  Sparkles,
+  Send,
+  Bot,
+  User,
+  ShieldCheck,
+  AlertCircle,
+  Clock
+} from 'lucide-react';
 
 const SUGGESTED_QUESTIONS = [
-  'WHAT IS THIS DOCUMENT ABOUT?',
-  'WHAT DO I NEED TO PAY?',
-  'WHEN IS THE DEADLINE?',
-  'WHAT SHOULD I DO NEXT?',
-  'EXPLAIN THIS SIMPLY.',
+  'What is this document about?',
+  'How much do I need to pay?',
+  'When is the deadline?',
+  'What should I do next?',
+  'Explain this simply.',
 ];
 
 export default function DocumentChatPage({ document }) {
@@ -36,7 +46,7 @@ export default function DocumentChatPage({ document }) {
               role: 'assistant',
               message: `Context established for **${
                 document.document_title || document.documentTitle || 'your document'
-              }** from **${document.issuer || 'the issuer'}**. Ask any question regarding the tax liability, audit discrepancies, payment deadlines, or response guidelines.`,
+              }** from **${document.issuer || 'the issuer'}**. Ask any question regarding tax liability, audit discrepancies, payment deadlines, or response guidelines.`,
               created_at: new Date().toISOString(),
             },
           ]);
@@ -85,105 +95,145 @@ export default function DocumentChatPage({ document }) {
       }
     } catch (err) {
       console.error('Chat error:', err);
-      setError('Unable to fetch answer from document AI. Please retry.');
+      setError('Unable to reach document AI. Please retry.');
     } finally {
       setSending(false);
     }
   };
 
   return (
-    <div className="border border-[#D5CEC1] bg-[#FAF8F2] flex flex-col h-[750px]">
-      {/* 13 — ASK DOCUSAATHI Header */}
-      <div className="p-6 border-b border-[#D5CEC1] bg-[#F1EBDD]/60 flex flex-col sm:flex-row sm:items-baseline justify-between gap-2">
-        <div>
-          <span className="font-mono text-[11px] text-[#3158A8] uppercase tracking-widest block mb-1">
-            13 — ASK DOCUSAATHI
-          </span>
-          <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#101B2D]">
-            Ask the document.
-          </h2>
+    <div className="rounded-3xl border border-white/10 bg-[#0D1117]/90 backdrop-blur-xl flex flex-col h-[750px] shadow-2xl overflow-hidden">
+      {/* Header */}
+      <div className="p-6 border-b border-white/10 bg-[#111722]/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="space-y-0.5">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-[#5B8CFF]/20 flex items-center justify-center text-[#5B8CFF] shadow-glow-blue/20">
+              <Sparkles className="w-4 h-4" />
+            </div>
+            <h2 className="font-display text-xl font-bold text-[#F5F7FA]">
+              ASK DOCUSAATHI
+            </h2>
+          </div>
+          <p className="font-sans text-xs text-[#9BA6B5] pl-10">
+            Ask anything about this document. Grounded on extracted values and penalties.
+          </p>
         </div>
-        <span className="font-mono text-[11px] text-[#70716D] uppercase">
-          GROUNDED ON: {document.document_title || document.documentTitle || 'ACTIVE FILE'}
+
+        <span className="text-[10px] font-mono px-3 py-1 rounded-full bg-white/05 border border-white/05 text-[#9BA6B5] self-start sm:self-auto">
+          CONTEXT: {document.document_title || document.documentTitle || 'ACTIVE FILE'}
         </span>
       </div>
 
       {/* Suggested Questions */}
-      <div className="px-6 py-3 border-b border-[#D5CEC1] bg-[#FAF8F2] flex flex-wrap gap-2">
+      <div className="px-6 py-3 border-b border-white/05 bg-[#070A0F]/60 flex items-center gap-2 overflow-x-auto">
+        <span className="text-[10px] font-mono uppercase text-[#9BA6B5] shrink-0">
+          SUGGESTED:
+        </span>
         {SUGGESTED_QUESTIONS.map((question, idx) => (
           <button
             key={idx}
             onClick={() => handleSend(question)}
             disabled={sending}
-            className="font-mono text-[10px] uppercase tracking-wider text-[#101B2D] border border-[#D5CEC1] hover:border-[#3158A8] hover:text-[#3158A8] bg-[#FAF8F2] px-3 py-1 transition-colors disabled:opacity-40"
+            className="text-xs font-sans text-[#F5F7FA] hover:text-white bg-white/05 hover:bg-white/10 border border-white/08 hover:border-[#5B8CFF]/40 px-3 py-1 rounded-full whitespace-nowrap transition-all disabled:opacity-40"
           >
             {question}
           </button>
         ))}
       </div>
 
-      {/* Messages Thread: Thin separators instead of bulky bubbles */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-6 divide-y divide-[#D5CEC1]">
+      {/* Messages Thread */}
+      <div className="flex-1 overflow-y-auto p-6 space-y-5">
         {loadingHistory ? (
-          <div className="flex items-center justify-center h-full font-mono text-xs text-[#70716D] uppercase tracking-widest">
+          <div className="flex items-center justify-center h-full font-mono text-xs text-[#9BA6B5]">
+            <Sparkles className="w-4 h-4 text-[#5B8CFF] animate-spin mr-2" />
             INITIALIZING DOCUMENT CONTEXT...
           </div>
         ) : (
-          messages.map((msg, index) => {
-            const isUser = msg.role === 'user';
+          <AnimatePresence>
+            {messages.map((msg, index) => {
+              const isUser = msg.role === 'user';
 
-            return (
-              <div
-                key={index}
-                className={`pt-6 first:pt-0 flex flex-col ${isUser ? 'items-end' : 'items-start'}`}
-              >
-                <div className="font-mono text-[10px] uppercase tracking-widest text-[#70716D] mb-1.5 flex items-center gap-2">
-                  <span>{isUser ? 'YOU' : 'DOCUSAATHI INTELLIGENCE'}</span>
-                  <span>•</span>
-                  <span>{new Date(msg.created_at || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                </div>
-
-                <div
-                  className={`max-w-[85%] text-xs sm:text-sm leading-relaxed p-4 border ${
-                    isUser
-                      ? 'border-[#101B2D] bg-[#101B2D] text-[#F1EBDD] font-mono'
-                      : 'border-[#D5CEC1] border-l-4 border-l-[#3158A8] bg-[#F1EBDD] text-[#101B2D] font-serif whitespace-pre-wrap'
+              return (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className={`flex items-start gap-3 ${
+                    isUser ? 'flex-row-reverse' : 'flex-row'
                   }`}
                 >
-                  {msg.message}
-                </div>
-              </div>
-            );
-          })
+                  {/* Avatar */}
+                  <div
+                    className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 text-xs ${
+                      isUser
+                        ? 'bg-gradient-to-tr from-[#5B8CFF] to-[#7C5CFF] text-white shadow-glow-blue/20'
+                        : 'bg-[#111722] border border-[#5B8CFF]/30 text-[#5B8CFF]'
+                    }`}
+                  >
+                    {isUser ? <User className="w-4 h-4" /> : <Sparkles className="w-4 h-4" />}
+                  </div>
+
+                  {/* Message Bubble */}
+                  <div className={`max-w-[80%] space-y-1 ${isUser ? 'items-end' : 'items-start'}`}>
+                    <div className="flex items-center gap-2 text-[10px] font-mono text-[#9BA6B5]">
+                      <span>{isUser ? 'YOU' : 'DOCUSAATHI INTELLIGENCE'}</span>
+                      {!isUser && (
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#25D9B5] shadow-glow-teal" />
+                      )}
+                    </div>
+
+                    <div
+                      className={`p-4 rounded-2xl text-xs sm:text-sm leading-relaxed ${
+                        isUser
+                          ? 'bg-gradient-to-r from-[#5B8CFF] to-[#7C5CFF] text-white shadow-lg'
+                          : 'bg-[#111722] border border-white/08 text-[#F5F7FA] shadow-md whitespace-pre-wrap'
+                      }`}
+                    >
+                      {msg.message}
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
         )}
 
+        {/* Typing animation with 3 glowing bouncing dots */}
         {sending && (
-          <div className="pt-6 flex flex-col items-start space-y-1">
-            <div className="font-mono text-[10px] uppercase tracking-widest text-[#3158A8]">
-              QUERYING DOCUMENT VIA GEMINI MULTIMODAL...
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="flex items-start gap-3"
+          >
+            <div className="w-8 h-8 rounded-xl bg-[#111722] border border-[#5B8CFF]/30 text-[#5B8CFF] flex items-center justify-center">
+              <Sparkles className="w-4 h-4 animate-spin" />
             </div>
-            <div className="p-3 border border-[#D5CEC1] border-l-4 border-l-[#3158A8] bg-[#F1EBDD] font-mono text-xs text-[#70716D]">
-              Cross-referencing entities, dates, and amounts...
+            <div className="p-4 rounded-2xl bg-[#111722] border border-white/08 flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-[#5B8CFF] animate-bounce [animation-delay:-0.3s]" />
+              <span className="w-2 h-2 rounded-full bg-[#7C5CFF] animate-bounce [animation-delay:-0.15s]" />
+              <span className="w-2 h-2 rounded-full bg-[#25D9B5] animate-bounce" />
             </div>
-          </div>
+          </motion.div>
         )}
 
         <div ref={messagesEndRef} />
       </div>
 
       {error && (
-        <div className="px-6 py-2.5 bg-[#8B2626]/10 text-[#8B2626] font-mono text-xs border-t border-[#8B2626]/20">
-          {error}
+        <div className="px-6 py-2.5 bg-[#FF5C6C]/10 text-[#FF5C6C] font-mono text-xs border-t border-[#FF5C6C]/20 flex items-center gap-2">
+          <AlertCircle className="w-4 h-4" />
+          <span>{error}</span>
         </div>
       )}
 
-      {/* Input Box */}
+      {/* Input Form */}
       <form
         onSubmit={(e) => {
           e.preventDefault();
           handleSend();
         }}
-        className="p-4 border-t border-[#D5CEC1] bg-[#FAF8F2] flex items-center gap-3"
+        className="p-4 border-t border-white/10 bg-[#111722]/80 flex items-center gap-3"
       >
         <input
           type="text"
@@ -191,23 +241,25 @@ export default function DocumentChatPage({ document }) {
           onChange={(e) => setInput(e.target.value)}
           placeholder="Ask a question about this document..."
           disabled={sending}
-          className="flex-1 px-4 py-2.5 font-mono text-xs sm:text-sm bg-[#FAF8F2] border border-[#D5CEC1] text-[#101B2D] focus:outline-none focus:border-[#3158A8]"
+          className="flex-1 px-4 py-3 rounded-xl font-sans text-xs sm:text-sm bg-[#070A0F] border border-white/10 text-[#F5F7FA] focus:outline-none focus:border-[#5B8CFF] transition-colors"
         />
 
-        <button
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
           type="submit"
           disabled={!input.trim() || sending}
-          className="bg-[#101B2D] text-[#F1EBDD] hover:bg-[#1B2C47] px-6 py-2.5 font-mono text-xs uppercase tracking-widest disabled:opacity-40 transition-colors"
+          className="bg-gradient-to-r from-[#5B8CFF] to-[#7C5CFF] text-white px-5 py-3 rounded-xl font-sans text-xs uppercase font-semibold tracking-wider disabled:opacity-40 transition-all flex items-center gap-2 shadow-glow-blue/20"
         >
-          [ SEND ]
-        </button>
+          <span>SEND</span>
+          <Send className="w-3.5 h-3.5" />
+        </motion.button>
       </form>
 
-      {/* Editorial Required Disclaimer */}
-      <div className="bg-[#FAF8F2] px-6 py-2.5 border-t border-[#D5CEC1] font-mono text-[10px] text-[#70716D] text-center">
-        AI-generated information. Verify important legal, tax, financial or medical decisions with a qualified professional.
+      {/* Disclaimer */}
+      <div className="bg-[#070A0F] px-6 py-2 border-t border-white/05 font-mono text-[10px] text-[#9BA6B5] text-center">
+        DocuSaathi generates responses directly from document content. Always verify high-stakes tax and legal advice.
       </div>
     </div>
   );
 }
-

@@ -3,13 +3,14 @@ import { Link } from 'react-router-dom';
 import RiskBadge from './RiskBadge';
 import StatusBadge from './StatusBadge';
 import { formatDate } from '../utils/formatters';
+import { ArrowLeft, Trash2, FileCheck, Building2, Calendar, Sparkles, MessageSquare } from 'lucide-react';
 
 export default function DocumentHeader({ document, onDelete, activeTab, onTabChange }) {
   if (!document) return null;
 
   const title = document.document_title || document.documentTitle || document.original_file_name;
   const docType = (document.document_type || document.documentType || 'General Document').toUpperCase();
-  const issuer = (document.issuer || 'N/A').toUpperCase();
+  const issuer = (document.issuer || 'Unknown Issuer').toUpperCase();
   const createdDate = document.created_at;
 
   const highestRisk = document.overallRisk ||
@@ -21,38 +22,41 @@ export default function DocumentHeader({ document, onDelete, activeTab, onTabCha
 
   return (
     <div className="space-y-6">
-      {/* Top Nav & Tab Controls */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#D5CEC1]">
+      {/* Top Navigation & Controls */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-white/05">
         <Link
           to="/dashboard"
-          className="font-mono text-xs uppercase tracking-widest text-[#70716D] hover:text-[#101B2D] transition-colors"
+          className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-[#9BA6B5] hover:text-[#5B8CFF] transition-colors"
         >
-          ← BACK TO DASHBOARD
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>Back to Overview</span>
         </Link>
 
         <div className="flex items-center gap-3">
-          {/* Editorial Tab Switcher */}
-          <div className="flex border border-[#D5CEC1] bg-[#FAF8F2]">
+          {/* Modern Tab Switcher */}
+          <div className="flex bg-[#0D1117] border border-white/08 rounded-xl p-1">
             <button
               onClick={() => onTabChange('analysis')}
-              className={`px-4 py-2 font-mono text-xs uppercase tracking-wider transition-colors ${
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold tracking-wide transition-all ${
                 activeTab === 'analysis'
-                  ? 'bg-[#101B2D] text-[#F1EBDD] font-bold'
-                  : 'text-[#101B2D] hover:bg-[#E8E0D2]'
+                  ? 'bg-gradient-to-r from-[#5B8CFF] to-[#7C5CFF] text-white shadow-glow-blue/40'
+                  : 'text-[#9BA6B5] hover:text-white hover:bg-white/05'
               }`}
             >
-              01 ANALYSIS
+              <FileCheck className="w-3.5 h-3.5" />
+              <span>Audit Report</span>
             </button>
 
             <button
               onClick={() => onTabChange('chat')}
-              className={`px-4 py-2 font-mono text-xs uppercase tracking-wider border-l border-[#D5CEC1] transition-colors ${
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold tracking-wide transition-all ${
                 activeTab === 'chat'
-                  ? 'bg-[#101B2D] text-[#F1EBDD] font-bold'
-                  : 'text-[#101B2D] hover:bg-[#E8E0D2]'
+                  ? 'bg-gradient-to-r from-[#5B8CFF] to-[#7C5CFF] text-white shadow-glow-blue/40'
+                  : 'text-[#9BA6B5] hover:text-white hover:bg-white/05'
               }`}
             >
-              02 ASK DOCUMENT
+              <MessageSquare className="w-3.5 h-3.5" />
+              <span>Ask AI</span>
             </button>
           </div>
 
@@ -60,9 +64,9 @@ export default function DocumentHeader({ document, onDelete, activeTab, onTabCha
             <button
               onClick={onDelete}
               title="Delete Document"
-              className="px-3 py-2 border border-[#D5CEC1] hover:border-[#8B2626] font-mono text-xs text-[#70716D] hover:text-[#8B2626] transition-colors"
+              className="p-2.5 rounded-xl border border-white/08 hover:border-[#FF5C6C]/40 text-[#9BA6B5] hover:text-[#FF5C6C] hover:bg-[#FF5C6C]/05 transition-colors"
             >
-              DELETE
+              <Trash2 className="w-4 h-4" />
             </button>
           )}
         </div>
@@ -70,41 +74,62 @@ export default function DocumentHeader({ document, onDelete, activeTab, onTabCha
 
       {/* Prominent Demo Notice if Sample */}
       {document.is_demo && (
-        <div className="p-4 border border-[#9A6B2F] bg-[#9A6B2F]/10 font-mono text-xs text-[#101B2D] flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            <span className="font-bold text-[#9A6B2F] uppercase tracking-wider">
+        <div className="p-4 rounded-xl border border-[#FFB84D]/30 bg-[#FFB84D]/08 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-2 text-[#FFB84D]">
+            <Sparkles className="w-4 h-4 shrink-0" />
+            <span className="font-semibold uppercase tracking-wider font-mono">
               [ SAMPLE / DEMO DATA ]
             </span>
-            <span>Pre-verified scenario. Demonstrates deterministic validation and action planning.</span>
+            <span className="text-[#F5F7FA]">Pre-computed scenario for reliable live demonstration.</span>
           </div>
-          <span className="text-[10px] text-[#70716D] uppercase">
-            NOT GENERATED BY GEMINI IN REAL-TIME
+          <span className="text-[10px] font-mono text-[#9BA6B5] uppercase">
+            NOT REAL-TIME GEMINI RUN
           </span>
         </div>
       )}
 
-      {/* Main Document Title & Metadata Block */}
-      <div className="border border-[#D5CEC1] bg-[#FAF8F2] p-6 sm:p-10 space-y-6">
-        <div>
-          <span className="font-mono text-[11px] text-[#3158A8] uppercase tracking-widest block mb-2">
-            05 — DOCUMENT
-          </span>
-          <h1 className="font-serif text-3xl sm:text-5xl font-bold tracking-tight text-[#101B2D]">
-            {title}
-          </h1>
-        </div>
+      {/* Main Document Hero Glass Card */}
+      <div className="relative rounded-2xl border border-white/10 bg-[#111722]/80 backdrop-blur-xl p-6 sm:p-10 shadow-2xl overflow-hidden">
+        {/* Ambient Top Glow */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-[#5B8CFF]/10 rounded-full blur-3xl pointer-events-none" />
 
-        {/* Ruled Metadata Bar */}
-        <div className="pt-4 border-t border-[#D5CEC1] flex flex-wrap items-center justify-between gap-4 font-mono text-xs">
-          <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-[#70716D]">
-            <span>TYPE: <strong className="text-[#101B2D]">{docType}</strong></span>
-            <span>ISSUER: <strong className="text-[#101B2D]">{issuer}</strong></span>
-            <span>DATE: <strong className="text-[#101B2D]">{formatDate(createdDate)}</strong></span>
+        <div className="relative z-10 space-y-6">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#5B8CFF]/10 border border-[#5B8CFF]/25 text-[11px] font-mono uppercase tracking-wider text-[#5B8CFF] font-semibold">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#5B8CFF] animate-pulse" />
+              DOCUMENT ANALYZED ✓
+            </span>
+
+            <div className="flex items-center gap-2.5">
+              <RiskBadge level={highestRisk} size="lg" />
+              <StatusBadge status={document.processing_status} />
+            </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <RiskBadge level={highestRisk} />
-            <StatusBadge status={document.processing_status} />
+          <div>
+            <h1 className="font-display text-2xl sm:text-4xl font-bold tracking-tight text-[#F5F7FA] leading-tight">
+              {title}
+            </h1>
+          </div>
+
+          {/* Metadata Chips Bar */}
+          <div className="pt-4 border-t border-white/05 flex flex-wrap items-center gap-3 sm:gap-6 text-xs text-[#9BA6B5]">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/05 border border-white/05">
+              <span className="text-[#657182] font-mono uppercase text-[10px]">CATEGORY:</span>
+              <strong className="text-[#F5F7FA]">{docType}</strong>
+            </div>
+
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/05 border border-white/05">
+              <Building2 className="w-3.5 h-3.5 text-[#5B8CFF]" />
+              <span className="text-[#657182] font-mono uppercase text-[10px]">ISSUER:</span>
+              <strong className="text-[#F5F7FA]">{issuer}</strong>
+            </div>
+
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/05 border border-white/05">
+              <Calendar className="w-3.5 h-3.5 text-[#7C5CFF]" />
+              <span className="text-[#657182] font-mono uppercase text-[10px]">PROCESSED:</span>
+              <strong className="text-[#F5F7FA]">{formatDate(createdDate)}</strong>
+            </div>
           </div>
         </div>
       </div>

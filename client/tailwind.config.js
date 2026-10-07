@@ -7,35 +7,56 @@ export default {
   theme: {
     extend: {
       colors: {
-        paper: {
-          DEFAULT: '#F1EBDD',
-          dark: '#E8E0D2',
+        dark: {
+          main: '#070A0F',
+          secondary: '#0D1117',
+          card: '#111722',
+          elevated: '#151C29',
+          border: 'rgba(255, 255, 255, 0.08)',
+          'border-hover': 'rgba(91, 140, 255, 0.3)',
         },
-        navy: {
-          DEFAULT: '#101B2D',
-          light: '#1B2C47',
+        text: {
+          primary: '#F5F7FA',
+          secondary: '#9BA6B5',
+          muted: '#657182',
         },
         accent: {
-          blue: '#3158A8',
-        },
-        editorial: {
-          muted: '#70716D',
-          line: '#D5CEC1',
-          white: '#FAF8F2',
+          blue: '#5B8CFF',
+          violet: '#7C5CFF',
+          teal: '#25D9B5',
+          cyan: '#38BDF8',
         },
         status: {
-          red: '#8B2626',
-          amber: '#9A6B2F',
-          green: '#2D6A4F',
-        }
+          danger: '#FF5C6C',
+          warning: '#FFB84D',
+          success: '#25D9B5',
+          info: '#5B8CFF',
+        },
       },
       fontFamily: {
-        serif: ['"Playfair Display"', 'Georgia', 'serif'],
-        mono: ['"IBM Plex Mono"', 'Menlo', 'monospace'],
-        display: ['"Playfair Display"', 'Georgia', 'serif'],
+        sans: ['"Plus Jakarta Sans"', 'Inter', '-apple-system', 'sans-serif'],
+        display: ['"Space Grotesk"', '"Plus Jakarta Sans"', 'sans-serif'],
+        mono: ['"JetBrains Mono"', 'monospace'],
       },
-      maxWidth: {
-        'editorial': '1440px',
+      borderRadius: {
+        'card': '16px',
+        'card-lg': '20px',
+      },
+      boxShadow: {
+        'glow-blue': '0 0 25px -5px rgba(91, 140, 255, 0.3)',
+        'glow-violet': '0 0 25px -5px rgba(124, 92, 255, 0.3)',
+        'glow-teal': '0 0 25px -5px rgba(37, 217, 181, 0.3)',
+        'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
+      },
+      animation: {
+        'pulse-subtle': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'float': 'float 6s ease-in-out infinite',
+      },
+      keyframes: {
+        float: {
+          '0%, 100%': { transform: 'translateY(0px)' },
+          '50%': { transform: 'translateY(-10px)' },
+        }
       }
     },
   },

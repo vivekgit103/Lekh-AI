@@ -1,4 +1,6 @@
 import React from 'react';
+import { motion } from 'framer-motion';
+import { Calendar, AlertCircle, Clock, CheckCircle2, ChevronRight } from 'lucide-react';
 import { formatDate } from '../utils/formatters';
 
 export default function DeadlineCard({ deadline }) {
@@ -15,64 +17,96 @@ export default function DeadlineCard({ deadline }) {
   const month = isValidDate ? parsed.toLocaleString('en-US', { month: 'short' }).toUpperCase() : 'DATE';
   const year = isValidDate ? parsed.getFullYear() : '';
 
-  const isOverdue = status === 'OVERDUE' || (isValidDate && parsed < new Date());
+  // Calculate days remaining
+  let diffDays = null;
+  let countdownText = '';
+  if (isValidDate) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const target = new Date(parsed);
+    target.setHours(0, 0, 0, 0);
+    const diffTime = target.getTime() - today.getTime();
+    diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays < 0) {
+      countdownText = `${Math.abs(diffDays)}d overdue`;
+    } else if (diffDays === 0) {
+      countdownText = 'Due today';
+    } else {
+      countdownText = `${diffDays}d remaining`;
+    }
+  }
+
+  const isOverdue = status === 'OVERDUE' || (diffDays !== null && diffDays < 0);
 
   return (
-    <div className={`p-4 border border-[#D5CEC1] transition-colors ${isOverdue ? 'bg-[#8B2626]/5 border-[#8B2626]/40' : 'bg-[#FAF8F2] hover:bg-[#E8E0D2]'}`}>
+    <motion.div
+      whileHover={{ y: -4, transition: { duration: 0.2 } }}
+      className={`relative overflow-hidden rounded-2xl border p-5 transition-all group ${
+        isOverdue
+          ? 'bg-[#FF5C6C]/05 border-[#FF5C6C]/30 shadow-lg shadow-[#FF5C6C]/05'
+          : priority === 'HIGH'
+          ? 'bg-[#111722] border-[#FF5C6C]/25 hover:border-[#FF5C6C]/50 hover:shadow-glow-red/20'
+          : 'bg-[#111722] border-white/10 hover:border-[#5B8CFF]/40 hover:shadow-glow-blue/20'
+      }`}
+    >
       <div className="flex items-start gap-4">
-        {/* Large Editorial Date Display */}
-        <div className="text-center shrink-0 border-r border-[#D5CEC1] pr-4 min-w-[65px]">
-          <div className="font-serif text-3xl font-bold leading-none text-[#101B2D]">
+        {/* Large Futuristic Date Display */}
+        <div className="flex flex-col items-center justify-center min-w-[70px] px-2 py-3 rounded-xl bg-[#070A0F]/80 border border-white/05 text-center shrink-0">
+          <span className="font-display text-3xl font-extrabold leading-none text-[#F5F7FA] tracking-tight">
             {day}
-          </div>
-          <div className="font-mono text-[11px] font-semibold tracking-widest text-[#3158A8] uppercase mt-1">
+          </span>
+          <span className="font-mono text-[11px] font-bold tracking-widest text-[#5B8CFF] uppercase mt-1">
             {month}
-          </div>
+          </span>
           {year && (
-            <div className="font-mono text-[10px] text-[#70716D]">
+            <span className="font-mono text-[10px] text-[#9BA6B5]/60 mt-0.5">
               {year}
-            </div>
+            </span>
           )}
         </div>
 
         {/* Obligation Content */}
-        <div className="min-w-0 flex-1 space-y-1.5">
-          <div className="flex flex-wrap items-center gap-2 font-mono text-[10px] uppercase tracking-wider">
-            <span className={`px-2 py-0.5 border ${
-              priority === 'HIGH'
-                ? 'text-[#8B2626] border-[#8B2626]/40'
-                : priority === 'MEDIUM'
-                ? 'text-[#9A6B2F] border-[#9A6B2F]/40'
-                : 'text-[#70716D] border-[#D5CEC1]'
-            }`}>
+        <div className="min-w-0 flex-1 space-y-2">
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Priority Pill */}
+            <span
+              className={`text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full border ${
+                priority === 'HIGH'
+                  ? 'text-[#FF5C6C] bg-[#FF5C6C]/10 border-[#FF5C6C]/30'
+                  : priority === 'MEDIUM'
+                  ? 'text-[#FFB84D] bg-[#FFB84D]/10 border-[#FFB84D]/30'
+                  : 'text-[#25D9B5] bg-[#25D9B5]/10 border-[#25D9B5]/30'
+              }`}
+            >
               {priority} PRIORITY
             </span>
 
-            {isOverdue ? (
-              <span className="text-[#8B2626] font-bold">
-                [ OVERDUE ]
-              </span>
-            ) : status === 'COMPLETED' ? (
-              <span className="text-[#2D6A4F] font-bold">
-                [ COMPLETED ]
-              </span>
-            ) : (
-              <span className="text-[#3158A8] font-bold">
-                [ UPCOMING ]
+            {/* Countdown Badge */}
+            {countdownText && (
+              <span
+                className={`text-[10px] font-mono uppercase px-2 py-0.5 rounded-full flex items-center gap-1 ${
+                  isOverdue
+                    ? 'text-[#FF5C6C] bg-[#FF5C6C]/15 font-semibold'
+                    : 'text-[#5B8CFF] bg-[#5B8CFF]/10'
+                }`}
+              >
+                <Clock className="w-3 h-3" />
+                {countdownText}
               </span>
             )}
           </div>
 
-          <p className="font-serif text-sm font-bold text-[#101B2D] leading-snug">
+          <h3 className="font-sans font-semibold text-sm sm:text-base text-[#F5F7FA] group-hover:text-white transition-colors line-clamp-2">
             {title}
-          </p>
+          </h3>
 
-          <p className="font-mono text-[11px] text-[#70716D]">
-            Target: {formatDate(dateStr)}
-          </p>
+          <div className="flex items-center justify-between text-[11px] font-mono text-[#9BA6B5] pt-1">
+            <span>Cutoff: {formatDate(dateStr)}</span>
+            <ChevronRight className="w-4 h-4 text-[#9BA6B5]/40 group-hover:text-[#5B8CFF] group-hover:translate-x-1 transition-all" />
+          </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
-

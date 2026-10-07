@@ -1,12 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { api } from '../services/api';
 import MetricCard from '../components/MetricCard';
 import RiskBadge from '../components/RiskBadge';
-import StatusBadge from '../components/StatusBadge';
 import DeadlineCard from '../components/DeadlineCard';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { formatDate } from '../utils/formatters';
+import {
+  FileText,
+  UploadCloud,
+  Sparkles,
+  Calendar,
+  AlertTriangle,
+  Clock,
+  ArrowRight,
+  Trash2,
+  ChevronRight,
+  ShieldAlert,
+  Plus
+} from 'lucide-react';
 
 export default function DashboardPage() {
   const [stats, setStats] = useState(null);
@@ -48,21 +61,21 @@ export default function DashboardPage() {
   };
 
   if (loading) {
-    return <LoadingSpinner text="RETRIEVING DASHBOARD DATA..." />;
+    return <LoadingSpinner text="RETRIEVING INTELLIGENT WORKSPACE..." />;
   }
 
   if (error) {
     return (
-      <div className="max-w-xl mx-auto my-12 p-8 border border-[#D5CEC1] bg-[#FAF8F2] text-center space-y-4">
-        <span className="font-mono text-xs uppercase tracking-widest text-[#8B2626] font-bold block">
-          [ SYSTEM ERROR ]
+      <div className="max-w-xl mx-auto my-12 p-8 rounded-2xl border border-[#FF5C6C]/30 bg-[#111722] text-center space-y-4">
+        <span className="font-mono text-xs uppercase tracking-widest text-[#FF5C6C] font-bold block">
+          SYSTEM ERROR
         </span>
-        <p className="font-mono text-xs text-[#101B2D]">{error}</p>
+        <p className="font-sans text-sm text-[#9BA6B5]">{error}</p>
         <button
           onClick={fetchDashboardData}
-          className="bg-[#101B2D] text-[#F1EBDD] px-6 py-2.5 rounded-sm font-mono text-xs uppercase tracking-widest"
+          className="bg-white/10 hover:bg-white/20 text-[#F5F7FA] px-6 py-2.5 rounded-xl font-mono text-xs uppercase tracking-wider"
         >
-          [ RETRY ]
+          RETRY
         </button>
       </div>
     );
@@ -70,7 +83,7 @@ export default function DashboardPage() {
 
   const documents = stats?.recentDocuments || [];
 
-  // Extract upcoming deadlines across recent documents
+  // Extract all deadlines across documents
   const allDeadlines = [];
   documents.forEach((doc) => {
     (doc.deadlines || []).forEach((dl) => {
@@ -81,20 +94,26 @@ export default function DashboardPage() {
       });
     });
   });
+  // Sort upcoming
+  allDeadlines.sort((a, b) => new Date(a.date || 0) - new Date(b.date || 0));
+
+  // Determine greeting based on local hour
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'GOOD MORNING' : hour < 17 ? 'GOOD AFTERNOON' : 'GOOD EVENING';
 
   return (
-    <div className="space-y-16">
-      {/* 02 — OVERVIEW Header */}
-      <section className="space-y-8">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 border-b border-[#D5CEC1] pb-8">
-          <div>
-            <span className="font-mono text-xs uppercase tracking-widest text-[#3158A8] block mb-2">
-              02 — OVERVIEW
+    <div className="space-y-12 pb-20">
+      {/* Top Welcome Section */}
+      <section className="space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 border-b border-white/10 pb-8">
+          <div className="space-y-2">
+            <span className="font-mono text-xs uppercase tracking-widest text-[#5B8CFF] font-semibold block">
+              {greeting}, USER
             </span>
-            <h1 className="font-serif text-4xl sm:text-6xl font-bold tracking-tight text-[#101B2D] leading-[1.1]">
+            <h1 className="font-display text-4xl sm:text-6xl font-extrabold tracking-tight text-[#F5F7FA] leading-[1.1]">
               Your documents,
               <br />
-              at a glance.
+              <span className="text-gradient">under control.</span>
             </h1>
           </div>
 
@@ -109,192 +128,208 @@ export default function DashboardPage() {
                   navigate('/upload');
                 }
               }}
-              className="bg-transparent hover:bg-[#E8E0D2] text-[#101B2D] border border-[#101B2D] px-5 py-2.5 rounded-sm font-mono text-xs uppercase tracking-widest transition-all"
+              className="glass-panel text-[#F5F7FA] hover:text-white px-5 py-3 rounded-xl font-sans text-xs uppercase tracking-wider font-semibold border border-white/10 hover:border-white/20 transition-all flex items-center gap-2"
             >
-              [ TRY DEMO ]
+              <Sparkles className="w-3.5 h-3.5 text-[#5B8CFF]" />
+              <span>TRY DEMO</span>
             </button>
 
             <Link
               to="/upload"
-              className="bg-[#101B2D] hover:bg-[#1B2C47] text-[#F1EBDD] px-5 py-2.5 rounded-sm font-mono text-xs uppercase tracking-widest transition-all"
+              className="bg-gradient-to-r from-[#5B8CFF] to-[#7C5CFF] text-[#F5F7FA] px-5 py-3 rounded-xl font-sans text-xs uppercase tracking-wider font-semibold shadow-glow-blue/40 hover:shadow-glow-blue/60 transition-all flex items-center gap-2"
             >
-              [ UPLOAD DOCUMENT ]
+              <Plus className="w-4 h-4" />
+              <span>UPLOAD DOCUMENT</span>
             </Link>
           </div>
         </div>
 
-        {/* Statistics using oversized numbers separated by vertical/horizontal rules */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-0 border border-[#D5CEC1] divide-y sm:divide-y-0 sm:divide-x divide-[#D5CEC1]">
+        {/* 4 Stats Cards */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <MetricCard
             title="DOCUMENTS"
             value={stats?.totalDocuments || 0}
             subtitle="Indexed in active repository"
-          />
-
-          <MetricCard
-            title="UPCOMING DEADLINES"
-            value={stats?.upcomingDeadlines || 0}
-            subtitle="Future statutory cutoffs"
+            icon={FileText}
           />
 
           <MetricCard
             title="HIGH RISK"
             value={stats?.highRiskDocuments || 0}
-            subtitle="Critical exposure flagged"
+            subtitle="Immediate statutory liability"
+            icon={AlertTriangle}
           />
 
           <MetricCard
-            title="PENDING ACTIONS"
+            title="UPCOMING"
+            value={stats?.upcomingDeadlines || 0}
+            subtitle="Statutory filing deadlines"
+            icon={Calendar}
+          />
+
+          <MetricCard
+            title="PENDING"
             value={stats?.overdueDocuments || 0}
             subtitle="Overdue or requiring action"
+            icon={Clock}
           />
         </div>
       </section>
 
-      {/* 03 — RECENT DOCUMENTS */}
-      <section className="space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 border-b border-[#D5CEC1] pb-4">
-          <div>
-            <span className="font-mono text-xs uppercase tracking-widest text-[#3158A8] block mb-1">
-              03 — RECENT DOCUMENTS
+      {/* Responsive Two-Column Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        {/* LEFT COLUMN: Recent Documents as Intelligent Objects (8 Cols) */}
+        <div className="lg:col-span-7 space-y-6">
+          <div className="flex items-center justify-between border-b border-white/05 pb-3">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-[#5B8CFF]" />
+              <h2 className="font-display text-xl sm:text-2xl font-bold text-[#F5F7FA]">
+                Recent Documents
+              </h2>
+            </div>
+            <span className="font-mono text-xs text-[#9BA6B5]">
+              {documents.length} PROCESSED
             </span>
-            <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#101B2D]">
-              Indexed records & audit reports.
-            </h2>
           </div>
-          <span className="font-mono text-xs text-[#70716D] uppercase">
-            {documents.length} RECENT FILE{documents.length !== 1 ? 'S' : ''}
-          </span>
+
+          {documents.length === 0 ? (
+            <div className="glass-panel p-10 text-center rounded-2xl border border-white/05 space-y-4">
+              <div className="w-12 h-12 rounded-xl bg-white/05 border border-white/10 flex items-center justify-center mx-auto text-[#9BA6B5]">
+                <FileText className="w-6 h-6" />
+              </div>
+              <h3 className="font-display text-lg font-bold text-[#F5F7FA]">
+                No documents uploaded yet.
+              </h3>
+              <p className="font-sans text-xs text-[#9BA6B5] max-w-sm mx-auto">
+                Drop a GST notice, tax form, or invoice to trigger autonomous multimodal parsing and compliance checks.
+              </p>
+              <Link
+                to="/upload"
+                className="inline-flex items-center gap-2 bg-gradient-to-r from-[#5B8CFF] to-[#7C5CFF] text-[#F5F7FA] px-5 py-2.5 rounded-xl font-sans text-xs uppercase font-semibold"
+              >
+                <span>Upload First Document</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {documents.map((doc) => {
+                const highestRisk = doc.overallRisk ||
+                  ((doc.risks || []).find((r) => r.level === 'HIGH')
+                    ? 'HIGH'
+                    : (doc.risks || []).find((r) => r.level === 'MEDIUM')
+                    ? 'MEDIUM'
+                    : 'LOW');
+
+                const title = doc.document_title || doc.documentTitle || doc.original_file_name;
+                const type = doc.document_type || doc.documentType || 'Tax Document';
+                const firstDeadline = (doc.deadlines || [])[0];
+
+                return (
+                  <motion.div
+                    key={doc.id}
+                    whileHover={{ y: -3 }}
+                    onClick={() => navigate(`/documents/${doc.id}`)}
+                    className="p-5 rounded-2xl glass-panel border border-white/08 hover:border-[#5B8CFF]/50 hover:shadow-glow-blue/20 cursor-pointer transition-all space-y-3 group relative overflow-hidden"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      {/* Left: Icon & Title */}
+                      <div className="flex items-start gap-3.5 min-w-0">
+                        <div className="w-11 h-11 rounded-xl bg-[#070A0F] border border-white/10 flex items-center justify-center shrink-0 group-hover:border-[#5B8CFF]/50 transition-colors">
+                          <FileText className="w-5 h-5 text-[#5B8CFF] group-hover:scale-110 transition-transform" />
+                        </div>
+
+                        <div className="min-w-0 space-y-1">
+                          <h3 className="font-display font-bold text-base text-[#F5F7FA] group-hover:text-white transition-colors truncate">
+                            {title}
+                          </h3>
+                          <div className="flex flex-wrap items-center gap-2 text-xs font-mono text-[#9BA6B5]">
+                            <span className="uppercase text-[#5B8CFF]">{type}</span>
+                            <span>•</span>
+                            <span>{formatDate(doc.created_at)}</span>
+                            {doc.issuer && (
+                              <>
+                                <span>•</span>
+                                <span className="truncate max-w-[120px]">{doc.issuer}</span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Right: Risk Badge & Delete */}
+                      <div className="flex items-center gap-2 shrink-0">
+                        <RiskBadge level={highestRisk} size="sm" />
+                        <button
+                          type="button"
+                          onClick={(e) => handleDelete(doc.id, e)}
+                          disabled={deletingId === doc.id}
+                          className="p-1.5 rounded-lg text-[#9BA6B5] hover:text-[#FF5C6C] hover:bg-[#FF5C6C]/10 transition-colors"
+                          title="Delete document"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Bottom Metadata & Hover Reveal */}
+                    <div className="pt-2 border-t border-white/05 flex items-center justify-between text-xs font-mono">
+                      {firstDeadline ? (
+                        <span className="text-[#FFB84D] flex items-center gap-1.5">
+                          <Calendar className="w-3.5 h-3.5" />
+                          <span>Deadline: {formatDate(firstDeadline.date)}</span>
+                        </span>
+                      ) : (
+                        <span className="text-[#9BA6B5]/60">No pending deadline</span>
+                      )}
+
+                      <span className="text-[#5B8CFF] font-semibold opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                        VIEW ANALYSIS <ArrowRight className="w-3.5 h-3.5" />
+                      </span>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          )}
         </div>
 
-        {documents.length === 0 ? (
-          <div className="border border-[#D5CEC1] bg-[#FAF8F2] p-12 text-center space-y-4">
-            <p className="font-serif text-lg font-bold text-[#101B2D]">
-              No documents processed yet.
-            </p>
-            <p className="font-mono text-xs text-[#70716D]">
-              Upload an Indian tax notice, GST invoice, or bank letter to run multimodal extraction.
-            </p>
-            <Link
-              to="/upload"
-              className="inline-block bg-[#101B2D] text-[#F1EBDD] px-6 py-3 rounded-sm font-mono text-xs uppercase tracking-widest"
-            >
-              [ UPLOAD FIRST DOCUMENT ]
-            </Link>
-          </div>
-        ) : (
-          <div className="border border-[#D5CEC1] bg-[#FAF8F2] overflow-x-auto">
-            <table className="w-full text-left font-mono text-xs">
-              <thead>
-                <tr className="border-b border-[#D5CEC1] text-[#70716D] text-[11px] uppercase tracking-wider bg-[#F1EBDD]/70">
-                  <th className="py-3.5 px-6 font-semibold">DOCUMENT</th>
-                  <th className="py-3.5 px-6 font-semibold">TYPE</th>
-                  <th className="py-3.5 px-6 font-semibold">DATE</th>
-                  <th className="py-3.5 px-6 font-semibold">STATUS</th>
-                  <th className="py-3.5 px-6 font-semibold text-right">ACTIONS</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#D5CEC1]">
-                {documents.map((doc) => {
-                  const highestRisk = doc.overallRisk ||
-                    ((doc.risks || []).find((r) => r.level === 'HIGH')
-                      ? 'HIGH'
-                      : (doc.risks || []).find((r) => r.level === 'MEDIUM')
-                      ? 'MEDIUM'
-                      : 'LOW');
-
-                  const title = doc.document_title || doc.documentTitle || doc.original_file_name;
-                  const type = doc.document_type || doc.documentType || 'Tax Document';
-
-                  return (
-                    <tr
-                      key={doc.id}
-                      onClick={() => navigate(`/documents/${doc.id}`)}
-                      className="cursor-pointer hover:bg-[#E8E0D2] transition-colors"
-                    >
-                      <td className="py-4 px-6">
-                        <div className="space-y-1">
-                          <span className="font-serif text-sm font-bold text-[#101B2D] block hover:text-[#3158A8]">
-                            {title}
-                          </span>
-                          <span className="text-[11px] text-[#70716D] block">
-                            Issuer: {doc.issuer || 'N/A'}
-                          </span>
-                        </div>
-                      </td>
-
-                      <td className="py-4 px-6 text-[#101B2D] uppercase font-semibold">
-                        {type}
-                      </td>
-
-                      <td className="py-4 px-6 text-[#70716D]">
-                        {formatDate(doc.created_at)}
-                      </td>
-
-                      <td className="py-4 px-6">
-                        <RiskBadge level={highestRisk} size="sm" />
-                      </td>
-
-                      <td className="py-4 px-6 text-right" onClick={(e) => e.stopPropagation()}>
-                        <div className="flex items-center justify-end gap-3">
-                          <button
-                            onClick={() => navigate(`/documents/${doc.id}`)}
-                            className="text-[#3158A8] hover:underline uppercase text-[11px]"
-                          >
-                            [ VIEW ]
-                          </button>
-                          <button
-                            onClick={(e) => handleDelete(doc.id, e)}
-                            disabled={deletingId === doc.id}
-                            className="text-[#70716D] hover:text-[#8B2626] uppercase text-[11px]"
-                          >
-                            [ DELETE ]
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </section>
-
-      {/* Deadlines Section on Dashboard */}
-      {allDeadlines.length > 0 && (
-        <section className="space-y-6 pt-4 border-t border-[#D5CEC1]">
-          <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 border-b border-[#D5CEC1] pb-4">
-            <div>
-              <span className="font-mono text-xs uppercase tracking-widest text-[#3158A8] block mb-1">
-                04 — ACTIVE DEADLINES
-              </span>
-              <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#101B2D]">
-                Statutory cutoffs across your documents.
+        {/* RIGHT COLUMN: Upcoming Deadlines (5 Cols) */}
+        <div className="lg:col-span-5 space-y-6">
+          <div className="flex items-center justify-between border-b border-white/05 pb-3">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-[#FF5C6C]" />
+              <h2 className="font-display text-xl sm:text-2xl font-bold text-[#F5F7FA]">
+                Upcoming Deadlines
               </h2>
             </div>
             <Link
               to="/deadlines"
-              className="font-mono text-xs uppercase tracking-widest text-[#3158A8] hover:underline"
+              className="font-mono text-xs text-[#5B8CFF] hover:underline uppercase tracking-wider"
             >
-              VIEW ALL DEADLINES →
+              VIEW TIMELINE →
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {allDeadlines.slice(0, 6).map((dl, idx) => (
-              <div
-                key={idx}
-                onClick={() => navigate(`/documents/${dl.docId}`)}
-                className="cursor-pointer"
-              >
-                <DeadlineCard deadline={dl} />
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
+          {allDeadlines.length === 0 ? (
+            <div className="glass-panel p-8 text-center rounded-2xl border border-white/05 font-mono text-xs text-[#9BA6B5]">
+              No upcoming statutory obligations tracked.
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {allDeadlines.slice(0, 5).map((dl, idx) => (
+                <div
+                  key={idx}
+                  onClick={() => navigate(`/documents/${dl.docId}`)}
+                  className="cursor-pointer"
+                >
+                  <DeadlineCard deadline={dl} />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
-

@@ -8,26 +8,27 @@ export default function DeadlineBadge({ date, priority = 'LOW' }) {
 
   if (isPast) {
     return (
-      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-[#8B2626] border border-[#8B2626]/40 bg-[#8B2626]/5">
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-[#FF5C6C] border border-[#FF5C6C]/30 bg-[#FF5C6C]/10 rounded-full">
+        <span className="w-1.5 h-1.5 rounded-full bg-[#FF5C6C] animate-pulse" />
         <span>OVERDUE ({formatDate(date)})</span>
       </span>
     );
   }
 
   const priorityStyles = {
-    HIGH: 'text-[#8B2626] border-[#8B2626]/40',
-    MEDIUM: 'text-[#9A6B2F] border-[#9A6B2F]/40',
-    LOW: 'text-[#70716D] border-[#D5CEC1]',
+    HIGH: 'text-[#FF5C6C] border-[#FF5C6C]/30 bg-[#FF5C6C]/10',
+    MEDIUM: 'text-[#FFB84D] border-[#FFB84D]/30 bg-[#FFB84D]/10',
+    LOW: 'text-[#9BA6B5] border-white/10 bg-white/05',
   };
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider border ${
+      className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-wider border rounded-full ${
         priorityStyles[normPriority] || priorityStyles.LOW
       }`}
     >
       <span>{formatDate(date)}</span>
-      <span className="opacity-80">[{normPriority}]</span>
+      <span className="opacity-70 font-bold">[{normPriority}]</span>
     </span>
   );
 }
