@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --paper: #F1EBDD;
+  --paper-dark: #E8E0D2;
+  --navy: #101B2D;
+  --blue: #3158A8;
+  --muted: #70716D;
+  --line: #D5CEC1;
+  --white: #FAF8F2;
+}
+
+@layer base {
+  body {
+    background-color: var(--paper);
+    color: var(--navy);
+    font-family: 'IBM Plex Mono', Menlo, monospace;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+
+  h1, h2, h3, h4, .font-serif {
+    font-family: 'Playfair Display', Georgia, serif;
+  }
+}
+
+/* Custom subtle scrollbar matching paper and line palette */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: var(--paper);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--line);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted);
+}
+
